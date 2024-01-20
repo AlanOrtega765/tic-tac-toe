@@ -15,14 +15,14 @@ const emits = defineEmits<{
     class="absolute top-0 left-0 w-full h-full flex items-center bg-just-black/50"
   >
     <div
-      class="flex flex-col gap-y-4 text-center py-10 bg-midnight-slate w-full"
+      class="flex flex-col text-center py-10 bg-midnight-slate w-full"
     >
-      <h4 v-if="winningPlayer" class="text-serene-blue font-bold uppercase">
+      <h4 v-if="winningPlayer" class="text-2xl text-serene-blue font-bold uppercase">
         {{ winningPlayer === player ? 'You Win!' : 'Oh no, you lost...' }}
       </h4>
       <div
         v-if="winningPlayer"
-        class="flex items-center justify-center gap-x-6"
+        class="flex items-center justify-center gap-x-6 mt-4"
         :class="winningPlayer === 'X' ? 'text-teal-green' : 'text-goldenrod'"
       >
         <Icon
@@ -34,7 +34,7 @@ const emits = defineEmits<{
       <span v-else class="text-2xl font-bold uppercase text-serene-blue"
         >Round Tied</span
       >
-      <div class="flex gap-x-4 justify-center">
+      <div class="flex gap-x-4 justify-center mt-10">
         <NuxtLink
           to="/"
           class="flex items-center bg-tranquil-slate-blue hover:bg-ice-blue px-10 h-[55px] font-bold pb-1 text-deep-abyss-blue uppercase rounded-lg shadow-[0_-4px_0_0_#6b8997_inset] tracking-widest"

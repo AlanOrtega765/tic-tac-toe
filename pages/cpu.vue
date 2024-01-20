@@ -2,7 +2,7 @@
 import type { PlayerType, Square } from '~/types';
 
 const savedSquares = localStorage.getItem('squares') as string;
-const savedScores = localStorage.getItem('counters') as string;
+const savedScores = localStorage.getItem('scores') as string;
 const savedTurn = localStorage.getItem('last-turn') as PlayerType;
 
 const player = ref<PlayerType>(localStorage.getItem('player') as PlayerType);
@@ -11,38 +11,22 @@ const winningLine = ref<number[]>([]);
 const winningPlayer = ref<PlayerType | null>(null);
 
 const squares = ref<Square[]>(
-  JSON.parse(savedSquares) || [
-    { id: 1, player: null, selected: false },
-    { id: 2, player: null, selected: false },
-    { id: 3, player: null, selected: false },
-    { id: 4, player: null, selected: false },
-    { id: 5, player: null, selected: false },
-    { id: 6, player: null, selected: false },
-    { id: 7, player: null, selected: false },
-    { id: 8, player: null, selected: false },
-    { id: 9, player: null, selected: false },
-  ]
+  JSON.parse(savedSquares) ||
+    Array.from({ length: 9 }, (_, id) => ({
+      id: id + 1,
+      player: null,
+      selected: false,
+    }))
 );
 
 const squareRefs = ref<Array<HTMLElement | null>>([]);
-const scores = ref(
-  JSON.parse(savedScores) || {
-    player: 0,
-    cpu: 0,
-    ties: 0,
-  }
-);
+const scores = ref(JSON.parse(savedScores) || { player: 0, cpu: 0, ties: 0 });
 const isOpenFinishGameModal = ref(false);
 const isOpenLeaveGameModal = ref(false);
 const isOpenRestartGameModal = ref(false);
 
-const isPlayerX = computed(() => {
-  return player.value === 'X';
-});
-
-const isPlayerO = computed(() => {
-  return player.value === 'O';
-});
+const isPlayerX = computed(() => player.value === 'X');
+const isPlayerO = computed(() => player.value === 'O');
 
 const winningCombinations = [
   [1, 2, 3],
@@ -56,7 +40,6 @@ const winningCombinations = [
 ];
 
 const checkWinner = () => {
-  // Verificar si alguna combinación ganadora ha sido completada
   for (const combination of winningCombinations) {
     const [a, b, c] = combination;
     if (
@@ -68,20 +51,15 @@ const checkWinner = () => {
     }
   }
 
-  return null; // No hay ganador
+  return null;
 };
 
-const checkTie = () => {
-  // Verificar si todos los cuadrados están seleccionados y no hay ganador
-  return squares.value.every((square) => square.selected) && !checkWinner();
-};
+const checkTie = () =>
+  squares.value.every((square) => square.selected) && !checkWinner();
 
 const openModal = () => {
   saveScores();
-
-  setTimeout(() => {
-    isOpenFinishGameModal.value = true;
-  }, 1000);
+  setTimeout(() => (isOpenFinishGameModal.value = true), 1000);
 };
 
 const handleCpuMove = () => {
@@ -202,13 +180,10 @@ const saveScores = () => {
 };
 
 const handleClick = (square: Square) => {
-  if (square.selected || checkWinner()) {
-    return;
-  }
+  if (square.selected || checkWinner()) return;
 
   square.player = turn.value;
   square.selected = true;
-
   saveMoves();
 
   const winner = checkWinner();
@@ -216,7 +191,6 @@ const handleClick = (square: Square) => {
     winningPlayer.value = winner.player;
     winningLine.value = winner.line;
     scores.value.player++;
-
     saveScores();
     openModal();
     return;
@@ -229,56 +203,43 @@ const handleClick = (square: Square) => {
   }
 
   turn.value = turn.value === 'X' ? 'O' : 'X';
+  saveMoves();
 
   setTimeout(() => {
     handleCpuMove();
-    saveMoves();
 
     const winner = checkWinner();
     if (winner) {
       winningPlayer.value = winner.player;
       winningLine.value = winner.line;
       scores.value.cpu++;
-
       saveScores();
       openModal();
     }
 
     if (checkTie()) {
       scores.value.ties++;
-
       openModal();
-      return;
     }
   }, 500);
 };
 
-const isWinningSquare = (index: number) => {
-  return winningLine.value.includes(index);
-};
+const isWinningSquare = (index: number) => winningLine.value.includes(index);
 
 const restartGame = () => {
   localStorage.removeItem('squares');
-  localStorage.removeItem('scores');
   localStorage.removeItem('last-turn');
   winningPlayer.value = null;
   turn.value = 'X';
   winningLine.value = [];
-  squares.value = [
-    { id: 1, player: null, selected: false },
-    { id: 2, player: null, selected: false },
-    { id: 3, player: null, selected: false },
-    { id: 4, player: null, selected: false },
-    { id: 5, player: null, selected: false },
-    { id: 6, player: null, selected: false },
-    { id: 7, player: null, selected: false },
-    { id: 8, player: null, selected: false },
-    { id: 9, player: null, selected: false },
-  ];
+  squares.value = Array.from({ length: 9 }, (_, id) => ({
+    id: id + 1,
+    player: null,
+    selected: false,
+  }));
 
   if (player.value === 'O') {
     turn.value = 'X';
-
     setTimeout(() => {
       handleCpuMove();
       saveMoves();
@@ -289,10 +250,32 @@ const restartGame = () => {
 onMounted(() => {
   if (player.value === 'O' && !savedTurn) {
     turn.value = 'X';
-
     setTimeout(() => {
       handleCpuMove();
       saveMoves();
+    }, 500);
+    return;
+  }
+
+  if (turn.value !== player.value) {
+    setTimeout(() => {
+      handleCpuMove();
+      saveMoves();
+
+      const winner = checkWinner();
+      if (winner) {
+        winningPlayer.value = winner.player;
+        winningLine.value = winner.line;
+        scores.value.cpu++;
+        saveScores();
+        openModal();
+      }
+
+      if (checkTie()) {
+        scores.value.ties++;
+        openModal();
+        return;
+      }
     }, 500);
   }
 });
@@ -402,18 +385,18 @@ onBeforeRouteLeave(() => {
       </div>
     </div>
 
-    <FinishGameModal
+    <ModalsFinishCpuGame
       v-if="isOpenFinishGameModal"
       :player="player"
       :winning-player="winningPlayer"
       @close-modal="isOpenFinishGameModal = false"
       @restart-game="restartGame"
     />
-    <LeaveGameModal
+    <ModalsLeaveGame
       v-if="isOpenLeaveGameModal"
       @close-modal="isOpenLeaveGameModal = false"
     />
-    <RestartGameModal
+    <ModalsRestartGame
       v-if="isOpenRestartGameModal"
       @close-modal="isOpenRestartGameModal = false"
       @restart-game="restartGame"
