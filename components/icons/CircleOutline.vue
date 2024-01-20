@@ -1,0 +1,25 @@
+<template>
+  <svg
+    xmlns="http://www.w3.org/2000/svg"
+    width="80"
+    height="80"
+    viewBox="0 0 512 512"
+  >
+    <circle
+      cx="256"
+      cy="256"
+      r="240"
+      fill="none"
+      stroke="currentColor"
+      stroke-width="32"
+    />
+    <circle
+      cx="256"
+      cy="256"
+      r="120"
+      fill="none"
+      stroke="currentColor"
+      stroke-width="32"
+    />
+  </svg>
+</template>
