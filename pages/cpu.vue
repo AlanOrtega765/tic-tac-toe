@@ -75,9 +75,9 @@ const handleCpuMove = () => {
     .filter((square) => !square.selected)
     .map((square) => square.id);
 
-  // Estrategia avanzada de la CPU
   let cpuMove: any;
 
+  // Estrategia de la CPU
   // Priorizar ganar la partida
   for (const combination of winningCombinations) {
     const [a, b, c] = combination;
@@ -138,17 +138,15 @@ const handleCpuMove = () => {
     }
   }
 
-  // Si no puede ganar ni bloquear, realizar un movimiento estratégico
+  // Realizar un movimiento estratégico sin ser demasiado agresivo
   if (!cpuMove) {
-    // Priorizar el centro y las esquinas si están disponibles
-    const strategicMoves = [5, 1, 3, 7, 9].filter((move) =>
-      availableMoves.includes(move)
+    const strategicMoves = [5, 1, 3, 7, 9].filter(
+      (move) => availableMoves.includes(move)
     );
 
     if (strategicMoves.length > 0) {
-      cpuMove = strategicMoves[0];
+      cpuMove = strategicMoves[Math.floor(Math.random() * strategicMoves.length)];
     } else {
-      // Si no hay movimientos estratégicos, realizar un movimiento aleatorio
       cpuMove =
         availableMoves[Math.floor(Math.random() * availableMoves.length)];
     }
